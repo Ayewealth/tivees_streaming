@@ -41,8 +41,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Betamind",
-  description: "Betamind is a hub where minds grow through mentorship. We make mentorship accessible and affordable for everyone.",
+  title: "Tivess Media",
+  description: "Stream Your Favorite Movies and TV Shows Anytime, Anywhere",
 };
 
 export default function RootLayout({
@@ -53,7 +53,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${hankenGrotesk.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${hankenGrotesk.variable} ${spacegrotesk.variable} ${bricolage.variable}  antialiased`}
       >
         <Navbar />
         {children}
