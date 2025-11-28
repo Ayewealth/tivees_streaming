@@ -1,11 +1,22 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { SolidMainPlayBtn } from './component/btns/AllBtns';
-import { FaPlay } from 'react-icons/fa';
+import { OutlineBtn, SolidMainBtn, SolidMainPlayBtn } from './component/btns/AllBtns';
+import { FaPlay, FaTv } from 'react-icons/fa';
 import { BiChevronLeft, BiChevronRight } from 'react-icons/bi';
 
-export default function Home() {
+
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Autoplay, Navigation, Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+import { MdOutlinePhoneIphone } from 'react-icons/md';
+import { HiMiniDeviceTablet } from 'react-icons/hi2';
+import { BsHeadsetVr, BsLaptop } from 'react-icons/bs';
+import { RiGamepadLine } from 'react-icons/ri';
+
+const Home = ()=> {
   const [openFaq, setOpenFaq] = useState(1);
   const [selectedPlan, setSelectedPlan] = useState('monthly');
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
@@ -37,116 +48,40 @@ export default function Home() {
     }
   };
 
-  // Data Arrays
-  const categories = [
-    {
-      id: 1,
-      name: 'Action',
-      image: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400&q=80',
-      slug: 'action',
-      movies: [
-        { poster: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=200&q=80' },
-        { poster: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=200&q=80' },
-        { poster: 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?w=200&q=80' },
-        { poster: 'https://images.unsplash.com/photo-1574267432644-f74d8eb4aa22?w=200&q=80' }
-      ]
-    },
-    {
-      id: 2,
-      name: 'Adventure',
-      image: 'https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=400&q=80',
-      slug: 'adventure',
-      movies: [
-        { poster: 'https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=200&q=80' },
-        { poster: 'https://images.unsplash.com/photo-1579566346927-c68383817a25?w=200&q=80' },
-        { poster: 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=200&q=80' },
-        { poster: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&q=80' }
-      ]
-    },
-    {
-      id: 3,
-      name: 'Comedy',
-      image: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&q=80',
-      slug: 'comedy',
-      movies: [
-        { poster: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=200&q=80' },
-        { poster: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=200&q=80' },
-        { poster: 'https://images.unsplash.com/photo-1513106580091-1d82408b8cd6?w=200&q=80' },
-        { poster: 'https://images.unsplash.com/photo-1522009433803-07dedf7afe83?w=200&q=80' }
-      ]
-    },
-    {
-      id: 4,
-      name: 'Drama',
-      image: 'https://images.unsplash.com/photo-1594908900066-3f47337549d8?w=400&q=80',
-      slug: 'drama',
-      movies: [
-        { poster: 'https://images.unsplash.com/photo-1594908900066-3f47337549d8?w=200&q=80' },
-        { poster: 'https://images.unsplash.com/photo-1518676590629-3dcbd9c5a5c9?w=200&q=80' },
-        { poster: 'https://images.unsplash.com/photo-1503095396549-807759245b35?w=200&q=80' },
-        { poster: 'https://images.unsplash.com/photo-1485095329183-d0797cdc5676?w=200&q=80' }
-      ]
-    },
-    {
-      id: 5,
-      name: 'Horror',
-      image: 'https://images.unsplash.com/photo-1509281373149-e957c6296406?w=400&q=80',
-      slug: 'horror',
-      movies: [
-        { poster: 'https://images.unsplash.com/photo-1509281373149-e957c6296406?w=200&q=80' },
-        { poster: 'https://images.unsplash.com/photo-1603899122634-f086ca5f5ddd?w=200&q=80' },
-        { poster: 'https://images.unsplash.com/photo-1578328819058-b69f3a3b0f6b?w=200&q=80' },
-        { poster: 'https://images.unsplash.com/photo-1560169897-fc0cdbdfa4d5?w=200&q=80' }
-      ]
-    },
-    {
-      id: 6,
-      name: 'Sci-Fi',
-      image: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=400&q=80',
-      slug: 'sci-fi',
-      movies: [
-        { poster: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=200&q=80' },
-        { poster: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=200&q=80' },
-        { poster: 'https://images.unsplash.com/photo-1614732414444-096e5f1122d5?w=200&q=80' },
-        { poster: 'https://images.unsplash.com/photo-1635805737707-575885ab0820?w=200&q=80' }
-      ]
-    }
-  ];
-
   const devices = [
     {
       id: 1,
-      icon: '📱',
+      icon: <MdOutlinePhoneIphone  />,
       name: 'Smartphones',
       description: 'StreamMedia is optimized for both Android and iOS smartphones. Download our app from the Google Play Store or the Apple App Store.'
     },
     {
       id: 2,
-      icon: '📱',
+      icon: <HiMiniDeviceTablet />,
       name: 'Tablet',
       description: 'StreamMedia is optimized for both Android and iOS tablets. Enjoy larger screens and perfect viewing experience.'
     },
     {
       id: 3,
-      icon: '📺',
+      icon: <FaTv />,
       name: 'Smart TV',
       description: 'StreamMedia is available on all major Smart TV platforms. Experience cinema-quality viewing from your living room.'
     },
     {
       id: 4,
-      icon: '💻',
+      icon: <BsLaptop />,
       name: 'Laptops',
       description: 'Watch anywhere on your Mac or PC. StreamMedia works on all laptops with high-quality streaming.'
     },
     {
       id: 5,
-      icon: '🎮',
+      icon: <RiGamepadLine />,
       name: 'Gaming Consoles',
       description: 'Available on PlayStation, Xbox, and Nintendo. Switch seamlessly between gaming and streaming.'
     },
     {
       id: 6,
-      icon: '🥽',
+      icon: <BsHeadsetVr />,
       name: 'VR Headsets',
       description: 'Immerse yourself in entertainment with VR support. Experience movies like never before in virtual reality.'
     }
@@ -226,7 +161,7 @@ export default function Home() {
         </video>
 
         {/* Gradient Overlay */}
-        <div className="absolute inset-0 z-20 bg-gradient-to-t from-black/[1] from-[20%] via-black/70 via-[60%] to-transparent"></div>
+        <div className="absolute inset-0 z-20 bg-linear-to-t from-black from-20% via-black/70 via-60% to-transparent"></div>
 
         {/* Play Button Overlay (before video plays) */}
         {!isVideoPlaying && (
@@ -269,62 +204,147 @@ export default function Home() {
                 Whether you're looking for a comedy to make you laugh, a drama to make you think, or a documentary to learn something new
               </p>
             </div>
-            
-            {/* Navigation Arrows */}
-            <div className="flex gap-2">
-              <button
-                onClick={() => scrollCategories('left')}
-                className="w-12 h-12 bg-neutral-900 hover:bg-neutral-800 rounded-full flex items-center justify-center border border-neutral-700 transition-colors"
-              >
-                <BiChevronLeft />
-              </button>
-              <button
-                onClick={() => scrollCategories('right')}
-                className="w-12 h-12 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center transition-colors"
-              >
-                <BiChevronRight />
-              </button>
-            </div>
           </div>
 
-          {/* Categories Carousel */}
-          <div 
-            ref={categoryScrollRef}
-            className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          <Swiper
+            slidesPerView={2}
+            spaceBetween={10}
+            loop={true}
+            autoplay={{
+              delay: 100000,
+              disableOnInteraction: false,
+            }}
+            pagination={{
+              clickable: true,
+            }}
+            navigation={true}
+            breakpoints={{
+              
+              375: {
+                slidesPerView: 2,
+                spaceBetween: 20,
+              },
+              640: {
+                slidesPerView: 2,
+                spaceBetween: 20,
+              },
+              768: {
+                slidesPerView: 4,
+                spaceBetween: 20,
+              },
+              1024: {
+                slidesPerView: 4,
+                spaceBetween: 20,
+              },
+            }}
+            modules={[Pagination, Navigation, Autoplay]}
+            className="mySwiper"
+
+            
           >
-            {categories.map((category) => (
-              <a
-                key={category.id}
-                // href={`/category/${category.slug}`}
-                className="group cursor-pointer shrink-0"
-              >
-                <div className="relative bg-neutral-950 rounded-lg p-4 overflow-hidden border-2 border-neutral-900 transition-all">
-                  {/* Movie Grid */}
+              <SwiperSlide>
+                <div className="relative bg-neutral-950 rounded-lg overflow-hidden border-2 border-neutral-900 transition-all">
                   <div className="">
                       <div className="aspect-square overflow-hidden rounded">
                         <img
-                          src={category.image}
-                          alt={`Movie poster for ${category.name}`}
+                          src={"https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400&q=80"}
+                          alt={`Movie poster for Action`}
                           className="w-full h-full object-cover"
                         />
                       </div>
-                    {/* Category Name Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent flex items-end justify-between p-4">
-                      <h3 className="text-2xl font-bold">{category.name}</h3>
+                    <div className="absolute inset-0 bg-linear-to-t from-black via-black/50 to-transparent flex items-end justify-between p-4">
+                      <h3 className="text-xl font-bold">Action</h3>
                       <BiChevronRight className="w-6 h-6 transform group-hover:translate-x-1 transition-transform" />
                     </div>
                   </div>
                   
                 </div>
-              </a>
-            ))}
-          </div>
+              </SwiperSlide>
+
+              <SwiperSlide>
+                <div className="relative bg-neutral-950 rounded-lg overflow-hidden border-2 border-neutral-900 transition-all">
+                  <div className="">
+                      <div className="aspect-square overflow-hidden rounded">
+                        <img
+                          src={"https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=400&q=80"}
+                          alt={`Movie poster for Action`}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    <div className="absolute inset-0 bg-linear-to-t from-black via-black/50 to-transparent flex items-end justify-between p-4">
+                      <h3 className="text-xl font-bold">Adventure</h3>
+                      <BiChevronRight className="w-6 h-6 transform group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+                  
+                </div>
+              </SwiperSlide>
+
+
+              <SwiperSlide>
+                <div className="relative bg-neutral-950 rounded-lg overflow-hidden border-2 border-neutral-900 transition-all">
+                  <div className="">
+                      <div className="aspect-square overflow-hidden rounded">
+                        <img
+                          src={"https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&q=80"}
+                          alt={`Movie poster for Action`}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    <div className="absolute inset-0 bg-linear-to-t from-black via-black/50 to-transparent flex items-end justify-between p-4">
+                      <h3 className="text-xl font-bold">Comedy</h3>
+                      <BiChevronRight className="w-6 h-6 transform group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+                  
+                </div>
+              </SwiperSlide>
+
+
+              <SwiperSlide>
+                <div className="relative bg-neutral-950 rounded-lg overflow-hidden border-2 border-neutral-900 transition-all">
+                  <div className="">
+                      <div className="aspect-square overflow-hidden rounded">
+                        <img
+                          src={"https://images.unsplash.com/photo-1534447677768-be436bb09401?w=400&q=80"}
+                          alt={`Movie poster for Action`}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    <div className="absolute inset-0 bg-linear-to-t from-black via-black/50 to-transparent flex items-end justify-between p-4">
+                      <h3 className="text-xl font-bold">Drama</h3>
+                      <BiChevronRight className="w-6 h-6 transform group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+                  
+                </div>
+              </SwiperSlide>
+
+
+              <SwiperSlide>
+                <div className="relative bg-neutral-950 rounded-lg overflow-hidden border-2 border-neutral-900 transition-all">
+                  <div className="">
+                      <div className="aspect-square overflow-hidden rounded">
+                        <img
+                          src={"https://images.unsplash.com/photo-1509281373149-e957c6296406?w=400&q=80"}
+                          alt={`Movie poster for Action`}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    <div className="absolute inset-0 bg-linear-to-t from-black via-black/50 to-transparent flex items-end justify-between p-4">
+                      <h3 className="text-xl font-bold">Horror</h3>
+                      <BiChevronRight className="w-6 h-6 transform group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+                  
+                </div>
+              </SwiperSlide>
+          </Swiper>
         </div>
       </section>
 
       {/* ==================== DEVICES SECTION ==================== */}
-      <section className="py-16 px-4 md:px-8 lg:px-16 bg-gradient-to-b from-black to-neutral-900">
+      <section className="py-16 px-4 md:px-8 lg:px-16 bg-linear-to-t from-black to-neutral-950">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             We Provide you streaming experience across various devices.
@@ -339,9 +359,9 @@ export default function Home() {
             {devices.map((device) => (
               <div 
                 key={device.id}
-                className="bg-gradient-to-br from-neutral-900 to-neutral-950 border-2 border-neutral-800 rounded-lg p-6 cursor-pointer hover:border-red-950 transition-all"
+                className="bg-neutral-950 border-2 border-neutral-900 rounded-lg p-6 cursor-pointer  transition-all"
               >
-                <div className="w-12 h-12 bg-red-600 rounded flex items-center justify-center mb-4">
+                <div className="w-12 h-12 bg-[#E50000] rounded flex items-center justify-center mb-4">
                   <span className="text-2xl">{device.icon}</span>
                 </div>
                 <h3 className="text-xl font-semibold mb-3">{device.name}</h3>
@@ -355,20 +375,21 @@ export default function Home() {
       </section>
 
       {/* ==================== FAQ SECTION ==================== */}
-      <section className="py-16 px-4 md:px-8 lg:px-16 bg-black">
+      <section className="py-16 px-5 md:px-8 lg:px-16 bg-linear-to-t from-black to-neutral-950">
         <div className="max-w-5xl mx-auto">
-          <div className="flex justify-between items-start mb-8">
-            <div>
+          <div className="lg:flex justify-between items-start mb-8 gap-5">
+            <div className='lg:w-[68%]'>
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
                 Frequently Asked Questions
               </h2>
-              <p className="text-gray-400">
-                Got questions? We've got answers! Check out our FAQ section to find answers to the most common questions about StreamMedia
+              <p className="text-gray-400 w-full">
+                Got questions? We've got answers! Check out our FAQ section  to find answers to the most common questions about StreamMedia
               </p>
             </div>
-            <button className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded whitespace-nowrap ml-4 transition-colors">
-              Ask a Question
-            </button>
+
+            <div className='lg:w-[20%] w-fit lg:pt-0 pt-5'>
+              <SolidMainBtn title='Ask a Question'/>
+            </div>
           </div>
 
           <div className="space-y-4">
@@ -401,7 +422,7 @@ export default function Home() {
       </section>
 
       {/* ==================== PRICING SECTION ==================== */}
-      <section className="py-16 px-4 md:px-8 lg:px-16 bg-gradient-to-b from-neutral-950 to-neutral-900">
+      <section className="py-16 px-4 md:px-8 lg:px-16 bg-linear-to-b from-neutral-black to-neutral-950">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Choose the plan that's right for you
@@ -417,7 +438,7 @@ export default function Home() {
               className={`px-6 py-2 rounded transition-colors ${
                 selectedPlan === 'monthly'
                   ? 'bg-red-600 text-white'
-                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                  : 'bg-neutral-800 text-gray-400 hover:bg-neutral-700'
               }`}
             >
               Monthly
@@ -427,7 +448,7 @@ export default function Home() {
               className={`px-6 py-2 rounded transition-colors ${
                 selectedPlan === 'yearly'
                   ? 'bg-red-600 text-white'
-                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                  : 'bg-neutral-800 text-gray-400 hover:bg-neutral-700'
               }`}
             >
               Yearly
@@ -439,7 +460,7 @@ export default function Home() {
             {pricingPlans.map((plan) => (
               <div 
                 key={plan.id}
-                className="bg-gradient-to-br from-neutral-900 to-neutral-950 border border-neutral-800 rounded-lg p-8"
+                className="bg-neutral-900 border border-neutral-800 rounded-lg p-8"
               >
                 <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
                 <p className="text-gray-400 mb-6 text-sm">
@@ -449,13 +470,15 @@ export default function Home() {
                   <span className="text-5xl font-bold">{plan.price}</span>
                   <span className="text-gray-400">{plan.period}</span>
                 </div>
-                <div className="space-y-3">
-                  <button className="w-full bg-transparent border border-gray-600 hover:border-red-600 text-white py-3 rounded transition-colors">
-                    Start Free Trial
-                  </button>
-                  <button className="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded transition-colors">
-                    Choose Plan
-                  </button>
+                <div className="flex items-center gap-3">
+                  <div className='w-full'>
+                    <OutlineBtn title="Start Free Trial" />
+                  </div>
+
+                  <div className='w-full'>
+                    <SolidMainBtn title="Choose Plan" />
+                  </div>
+              
                 </div>
               </div>
             ))}
@@ -468,33 +491,27 @@ export default function Home() {
         {/* Background Image */}
         <div className="absolute inset-0">
           <img 
-            src="https://images.unsplash.com/photo-1574267432644-f74d8eb4aa22?w=1920&q=80"
+            src="/assets/banner.png"
             alt="Background"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-black bg-opacity-70"></div>
+          <div className="absolute inset-0 bg-black/90"></div>
         </div>
 
         {/* Content */}
         <div className="relative z-10 max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
+          <h2 className="text-3xl md:text-5xl font-bold mb-4">
             Start your free trial today!
           </h2>
-          <p className="text-gray-300 mb-8 text-lg">
+          <p className="text-gray-300 mb-8 text-base">
             This is a clear and concise call to action that encourages users to sign up for a free trial of StreamMedia.
           </p>
-          <button className="bg-red-600 hover:bg-red-700 text-white font-semibold px-8 py-3 rounded transition-all transform hover:scale-105">
-            Start a Free Trial
-          </button>
+
+          <div className='w-fit mx-auto '>
+            <SolidMainBtn title="Start a Free Trial" />
+          </div>
         </div>
       </section>
-
-      {/* ==================== FOOTER ==================== */}
-      <footer className="bg-black border-t border-gray-800 py-8 px-4 md:px-8 lg:px-16">
-        <div className="max-w-7xl mx-auto text-center text-gray-500 text-sm">
-          <p>&copy; 2024 StreamMedia. All rights reserved.</p>
-        </div>
-      </footer>
 
       <style jsx>{`
         .scrollbar-hide::-webkit-scrollbar {
@@ -517,3 +534,5 @@ export default function Home() {
     </div>
   );
 }
+
+export default Home;
