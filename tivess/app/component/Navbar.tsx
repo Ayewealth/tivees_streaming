@@ -55,7 +55,7 @@ const Navbar = () => {
                 Home
               </Link>
               <Link 
-                href='/mentors' 
+                href='/movies' 
                 className="text-white hover:text-gray-300 transition-colors duration-200 text-sm font-medium"
               >
                 Movies & Shows
@@ -171,7 +171,7 @@ const Navbar = () => {
               Home
             </Link>
             <Link 
-              href='/mentors' 
+              href='/movies' 
               onClick={handleLinkClick}
               className="block w-full text-left text-white hover:bg-white/10 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200"
             >
