@@ -15,6 +15,7 @@ import { MdOutlinePhoneIphone } from 'react-icons/md';
 import { HiMiniDeviceTablet } from 'react-icons/hi2';
 import { BsHeadsetVr, BsLaptop } from 'react-icons/bs';
 import { RiGamepadLine } from 'react-icons/ri';
+import Link from 'next/link';
 
 const Home = ()=> {
   const [openFaq, setOpenFaq] = useState(1);
@@ -187,7 +188,9 @@ const Home = ()=> {
           </p>
 
           <div className="w-fit">
-            <SolidMainPlayBtn title="Start Watching Now" />
+            <Link href="/movies">
+              <SolidMainPlayBtn title="Start Watching Now" />
+            </Link>
           </div>
         </div>
       </section>

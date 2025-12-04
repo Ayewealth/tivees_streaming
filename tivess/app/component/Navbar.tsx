@@ -28,14 +28,15 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="w-full backdrop-blur-xl bg-black border-b border-white/10 shadow-lg z-40 fixed">
+      <nav className="w-full backdrop-blur-xl bg-black/30  shadow-lg z-40 fixed">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex justify-between items-center">
             {/* Logo */}
-            <div className='flex-shrink-0'>
+            <div className='shrink-0'>
               <Link href={'/'} onClick={handleLinkClick}>
                 <Image 
-                    src={'/assets/logo.png'}
+                    src={'/assets/logo1.png'}
+                    style={{borderRadius: 6}}
                     alt='Betamind logo'
                     width={40}
                     height={0}
@@ -123,9 +124,10 @@ const Navbar = () => {
           <div>
             <Link href='/' onClick={handleLinkClick}>
               <Image 
-                  src={'/assets/logo.png'}
+                  src={'/assets/logo1.png'}
+                  style={{borderRadius: 6}}
                   alt='Betamind logo'
-                  width={120}
+                  width={50}
                   height={0}
                   priority
                   unoptimized

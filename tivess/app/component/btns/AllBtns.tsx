@@ -2,6 +2,7 @@
 
 import React from 'react'
 import { FaPlay } from 'react-icons/fa';
+import { LuTvMinimal } from 'react-icons/lu';
 
 interface BtnProps {
     title: string;
@@ -16,6 +17,19 @@ export const SolidMainPlayBtn = ({ title, onClick, ...props }: BtnProps) => {
         className="w-full bg-[#E50000] flex items-center gap-2 cursor-pointer text-white px-4 py-3 rounded-md text-base font-medium transition-colors duration-200"
     >
         <FaPlay />
+        {title}
+    </button>
+  )
+}
+
+export const SolidWatchBtn = ({ title, onClick, ...props }: BtnProps) => {
+  return (
+    <button 
+        {...props}
+        onClick={onClick} 
+        className="w-full bg-white flex items-center gap-2 cursor-pointer text-neutral-900 px-4 py-3 rounded-md text-base font-medium transition-colors duration-200"
+    >
+        <LuTvMinimal className='text-lg'/>
         {title}
     </button>
   )

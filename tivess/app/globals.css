@@ -53,3 +53,11 @@ body {
   border-radius: 50%;
   color: rgb(1, 44, 35);
 }
+
+.mySwiper1{
+  display: none;
+}
+
+.mySwiper2{
+  display: block;
+}

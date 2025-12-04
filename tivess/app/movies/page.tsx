@@ -1,13 +1,15 @@
 "use client"
 import { useState, useRef } from "react"
 import { BiChevronLeft, BiChevronRight } from "react-icons/bi"
-import { FaPlus, FaVolumeUp, FaVolumeMute, FaEye } from "react-icons/fa"
+import { FaPlus, FaVolumeUp, FaVolumeMute, FaEye, FaThumbsUp } from "react-icons/fa"
 import { Swiper, SwiperSlide } from "swiper/react"
 import { Autoplay, Navigation, Pagination } from "swiper/modules"
 import "swiper/css"
 import "swiper/css/navigation"
 import "swiper/css/pagination"
-import { SolidMainPlayBtn } from "../component/btns/AllBtns" 
+import { SolidMainPlayBtn } from "../component/btns/AllBtns"
+import Link from "next/link"
+
 
 const Movies = () => {
   const [isMuted, setIsMuted] = useState(true)
@@ -22,6 +24,7 @@ const Movies = () => {
     {
       id: 1,
       title: "Avengers : Endgame",
+      videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
       description:
         "With the help of remaining allies, the Avengers must assemble once more in order to undo Thanos's actions and undo the chaos to the universe, no matter what consequences may be in store, and no matter who they face... Avenge the fallen.",
       image: "https://images.unsplash.com/photo-1635863138275-d9b33299680b?w=1200&q=80",
@@ -29,6 +32,7 @@ const Movies = () => {
     {
       id: 2,
       title: "The Dark Knight",
+      videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
       description:
         "When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.",
       image: "https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=1200&q=80",
@@ -307,16 +311,30 @@ const Movies = () => {
                     {movie.description}
                   </p>
                   {/* Action Buttons */}
-                  <div className="flex items-center m-auto justify-center gap-4">
+                  <div className="flex items-center m-auto justify-center gap-2">
                     <div>
-                      <SolidMainPlayBtn title="Play Now" />
+                      <Link 
+                        href={{
+                          pathname: '/movie',
+                            query: {
+                              id: movie.id,
+                              data: JSON.stringify(movie)
+                            }
+                        }}
+                      >
+                        <SolidMainPlayBtn title="Play Now" />
+                      </Link>
                     </div>
-                    <button className="w-12 h-12 bg-white/20 hover:bg-white/30 rounded flex items-center justify-center transition-colors">
+
+                    <button className="w-12 h-12 bg-white/10 cursor-pointer hover:bg-white/10 rounded flex items-center justify-center transition-colors">
                       <FaPlus className="w-5 h-5" />
+                    </button>
+                    <button className="w-12 h-12 bg-white/10 cursor-pointer hover:bg-white/10 rounded flex items-center justify-center transition-colors">
+                        <FaThumbsUp className="w-5 h-5" />
                     </button>
                     <button
                       onClick={() => setIsMuted(!isMuted)}
-                      className="w-12 h-12 bg-white/20 hover:bg-white/30 rounded flex items-center justify-center transition-colors"
+                      className="w-12 h-12 bg-white/10 cursor-pointer hover:bg-white/10 rounded flex items-center justify-center transition-colors"
                     >
                       {isMuted ? <FaVolumeMute className="w-5 h-5" /> : <FaVolumeUp className="w-5 h-5" />}
                     </button>
@@ -327,13 +345,13 @@ const Movies = () => {
           ))}
         </Swiper>
         <button
-          onClick={() => heroSwiperRef.current?.swiper.slidePrev()}
+          onClick={() => heroSwiperRef.current?.swiper?.slidePrev()}
           className="absolute left-4 md:left-8 lg:top-1/2 top-1/3 -translate-y-1/2 z-40 w-10 h-10 md:w-12 md:h-12 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors"
         >
           <BiChevronLeft className="w-6 h-6 md:w-8 md:h-8" />
         </button>
         <button
-          onClick={() => heroSwiperRef.current?.swiper.slideNext()}
+          onClick={() => heroSwiperRef.current?.swiper?.slideNext()}
           className="absolute right-4 md:right-8 lg:top-1/2 top-1/3 -translate-y-1/2 z-40 w-10 h-10 md:w-12 md:h-12 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors"
         >
           <BiChevronRight className="w-6 h-6 md:w-8 md:h-8" />
@@ -353,25 +371,25 @@ const Movies = () => {
           <Swiper
             ref={genreSwiperRef}
             slidesPerView={2}
-            spaceBetween={20}
+            spaceBetween={10}
             navigation={true}
             loop={true}
             breakpoints={{
               640: {
                 slidesPerView: 2,
-                spaceBetween: 20,
+                spaceBetween: 10,
               },
               1024: {
                 slidesPerView: 3,
-                spaceBetween: 20,
+                spaceBetween: 10,
               },
               1280: {
                 slidesPerView: 4,
-                spaceBetween: 20,
+                spaceBetween: 10,
               },
             }}
             modules={[Autoplay, Navigation, Pagination]}
-            className="mySwiper"
+            className="lg:mySwiper2 mySwiper1"
           >
             {genreMovies.map((category) => (
               <SwiperSlide key={category.genre}>
@@ -397,18 +415,6 @@ const Movies = () => {
               </SwiperSlide>
             ))}
           </Swiper>
-          <button
-            onClick={() => genreSwiperRef.current?.swiper.slidePrev()}
-            className="absolute right-20 md:right-20 lg:top-0 top-0 -translate-y-1/2 z-60 w-10 h-10 md:w-12 md:h-12 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors"
-          >
-            <BiChevronLeft className="w-6 h-6 md:w-8 md:h-8" />
-          </button>
-          <button
-            onClick={() => genreSwiperRef.current?.swiper.slideNext()}
-            className="absolute right-4 md:right-8 lg:top-0 top-0 -translate-y-1/2 z-60 w-10 h-10 md:w-12 md:h-12 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors"
-          >
-            <BiChevronRight className="w-6 h-6 md:w-8 md:h-8" />
-          </button>
         </div>
 
         {/* Popular Genres Section */}
@@ -419,7 +425,7 @@ const Movies = () => {
           <Swiper
             ref={topSwiperRef}
             slidesPerView={2}
-            spaceBetween={20}
+            spaceBetween={10}
             navigation={true}
             loop={true}
             breakpoints={{
@@ -437,7 +443,7 @@ const Movies = () => {
               },
             }}
             modules={[Autoplay, Navigation, Pagination]}
-            className="mySwiper"
+            className="lg:mySwiper2 mySwiper1"
           >
             {topMovies.map((category) => (
               <SwiperSlide key={category.genre}>
@@ -470,18 +476,6 @@ const Movies = () => {
               </SwiperSlide>
             ))}
           </Swiper>
-          <button
-            onClick={() => topSwiperRef.current?.swiper.slidePrev()}
-            className="absolute right-20 md:right-20 lg:top-0 top-0 -translate-y-1/2 z-60 w-10 h-10 md:w-12 md:h-12 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors"
-          >
-            <BiChevronLeft className="w-6 h-6 md:w-8 md:h-8" />
-          </button>
-          <button
-            onClick={() => topSwiperRef.current?.swiper.slideNext()}
-            className="absolute right-4 md:right-8 lg:top-0 top-0 -translate-y-1/2 z-60 w-10 h-10 md:w-12 md:h-12 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors"
-          >
-            <BiChevronRight className="w-6 h-6 md:w-8 md:h-8" />
-          </button>
         </div>
 
         {/* Trending Now Section */}
@@ -492,29 +486,29 @@ const Movies = () => {
           <Swiper
             ref={trendingSwiperRef}
             slidesPerView={2}
-            spaceBetween={20}
+            spaceBetween={10}
             navigation={true}
             loop={true}
             breakpoints={{
               640: {
                 slidesPerView: 2,
-                spaceBetween: 20,
+                spaceBetween: 10,
               },
               768: {
                 slidesPerView: 3,
-                spaceBetween: 20,
+                spaceBetween: 10,
               },
               1024: {
                 slidesPerView: 4,
-                spaceBetween: 20,
+                spaceBetween: 10,
               },
               1280: {
                 slidesPerView: 5,
-                spaceBetween: 20,
+                spaceBetween: 10,
               },
             }}
-            modules={[Navigation, Pagination]}
-            className="mySwiper"
+            modules={[Autoplay, Navigation, Pagination]}
+            className="lg:mySwiper2 mySwiper1"
           >
             {trendingMovies.map((movie) => (
               <SwiperSlide key={movie.id}>
@@ -526,7 +520,7 @@ const Movies = () => {
                       className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300"
                     />
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
-                      <div className="w-full p-4 bg-gradient-to-t from-black to-transparent">
+                      <div className="w-full p-4 bg-linear-to-t from-black to-transparent">
                         <p className="text-white text-sm font-semibold">{movie.title}</p>
                       </div>
                     </div>
@@ -544,18 +538,6 @@ const Movies = () => {
               </SwiperSlide>
             ))}
           </Swiper>
-          <button
-            onClick={() => trendingSwiperRef.current?.swiper.slidePrev()}
-            className="absolute right-20 md:right-20 lg:top-0 top-0 -translate-y-1/2 z-60 w-10 h-10 md:w-12 md:h-12 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors"
-          >
-            <BiChevronLeft className="w-6 h-6 md:w-8 md:h-8" />
-          </button>
-          <button
-            onClick={() => trendingSwiperRef.current?.swiper.slideNext()}
-            className="absolute right-4 md:right-8 lg:top-0 top-0 -translate-y-1/2 z-60 w-10 h-10 md:w-12 md:h-12 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors"
-          >
-            <BiChevronRight className="w-6 h-6 md:w-8 md:h-8" />
-          </button>
         </div>
 
         {/* New Releases Section */}
@@ -566,29 +548,29 @@ const Movies = () => {
           <Swiper
             ref={newReleasesSwiperRef}
             slidesPerView={2}
-            spaceBetween={20}
+            spaceBetween={10}
             navigation={true}
             loop={true}
             breakpoints={{
               640: {
                 slidesPerView: 2,
-                spaceBetween: 20,
+                spaceBetween: 10,
               },
               768: {
                 slidesPerView: 3,
-                spaceBetween: 20,
+                spaceBetween: 10,
               },
               1024: {
                 slidesPerView: 4,
-                spaceBetween: 20,
+                spaceBetween: 10,
               },
               1280: {
                 slidesPerView: 5,
-                spaceBetween: 20,
+                spaceBetween: 10,
               },
             }}
-            modules={[Navigation, Pagination]}
-            className="mySwiper"
+            modules={[Autoplay, Navigation, Pagination]}
+            className="lg:mySwiper2 mySwiper1"
           >
             {newReleases.map((movie) => (
               <SwiperSlide key={movie.id}>
@@ -612,18 +594,6 @@ const Movies = () => {
               </SwiperSlide>
             ))}
           </Swiper>
-          <button
-            onClick={() => newReleasesSwiperRef.current?.swiper.slidePrev()}
-            className="absolute right-20 md:right-20 lg:top-0 top-0 -translate-y-1/2 z-60 w-10 h-10 md:w-12 md:h-12 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors"
-          >
-            <BiChevronLeft className="w-6 h-6 md:w-8 md:h-8" />
-          </button>
-          <button
-            onClick={() => newReleasesSwiperRef.current?.swiper.slideNext()}
-            className="absolute right-4 md:right-8 lg:top-0 top-0 -translate-y-1/2 z-60 w-10 h-10 md:w-12 md:h-12 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors"
-          >
-            <BiChevronRight className="w-6 h-6 md:w-8 md:h-8" />
-          </button>
         </div>
       </section>
     </div>
