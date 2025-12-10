@@ -1,9 +1,10 @@
 'use client';
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { SolidMainBtn, SolidMainPlayBtn, SolidWatchBtn } from '../component/btns/AllBtns';
 import { FaPlus, FaThumbsUp, FaVolumeMute, FaVolumeUp, FaStar, FaChevronLeft, FaChevronRight, FaRegCalendarAlt, FaGlobe } from 'react-icons/fa';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { RiMovie2Line } from 'react-icons/ri';
+import WatchModal from '../component/WatchModal';
 
 
 interface MovieData {
@@ -204,8 +205,31 @@ const Movie = () => {
         }
     };
 
+
+      const [isModalOpen, setIsModalOpen] = useState(false);
+        useEffect(() => {
+            if (isModalOpen) {
+            document.body.style.overflow = 'hidden';
+            } else {
+            document.body.style.overflow = 'unset';
+            }
+            
+            return () => {
+            document.body.style.overflow = 'unset';
+            };
+        }, [isModalOpen]);
+
+        const handleGetStarted = (e: any) => {
+            e.preventDefault();
+            setIsModalOpen(true);
+        };
+
     return (
         <div className="bg-black min-h-screen text-white">
+            <WatchModal 
+                isOpen={isModalOpen} 
+                onClose={() => setIsModalOpen(false)} 
+            />
             <section className="relative h-[90vh] w-full overflow-hidden">
                 <video
                     ref={videoRef}
@@ -251,7 +275,7 @@ const Movie = () => {
                                 <SolidMainPlayBtn onClick={handlePlayVideo} title="Play Now" />
                             </div>
 
-                            <div>
+                            <div  onClick={handleGetStarted}>
                                 <SolidWatchBtn title="Create Watchparty" />
                             </div>
                         </div>
@@ -508,9 +532,9 @@ const Movie = () => {
             {/* Background Image */}
             <div className="absolute inset-0">
                 <img 
-                src="/assets/banner.png"
-                alt="Background"
-                className="w-full h-full object-cover"
+                    src="/assets/banner.png"
+                    alt="Background"
+                    className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-black/90"></div>
             </div>

@@ -197,7 +197,7 @@ const Home = ()=> {
 
       {/* ==================== CATEGORIES SECTION ==================== */}
       <section className="py-16 px-4 md:px-8 lg:px-16">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <div className="flex justify-between items-center mb-8">
             <div>
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
@@ -348,7 +348,7 @@ const Home = ()=> {
 
       {/* ==================== DEVICES SECTION ==================== */}
       <section className="py-16 px-4 md:px-8 lg:px-16 bg-linear-to-t from-black to-neutral-950">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             We Provide you streaming experience across various devices.
           </h2>
