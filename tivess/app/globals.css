@@ -61,3 +61,170 @@ body {
 .mySwiper2{
   display: block;
 }
+
+/* Custom WYSIWYG Editor Styles */
+.custom-editor[data-placeholder]:empty:before {
+  content: attr(data-placeholder);
+  color: #6b7280;
+  pointer-events: none;
+}
+
+/* React Draft WYSIWYG Editor Dark Theme Styles */
+.draft-editor-wrapper {
+  height: 300px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+.draft-wrapper {
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  border: 1px solid #1f2937 !important;
+  border-radius: 0.5rem !important;
+  background-color: #0f0f0f !important;
+  overflow: hidden !important;
+  max-height: 300px !important;
+}
+
+.draft-toolbar {
+  background-color: #0f0f0f !important;
+  border-bottom: 1px solid #1f2937 !important;
+  border-radius: 0.5rem 0.5rem 0 0 !important;
+  padding: 0.5rem !important;
+  flex-shrink: 0 !important;
+  min-height: auto !important;
+  overflow: visible !important;
+}
+
+.draft-toolbar .rdw-inline-wrapper,
+.draft-toolbar .rdw-list-wrapper,
+.draft-toolbar .rdw-text-align-wrapper,
+.draft-toolbar .rdw-link-wrapper,
+.draft-toolbar .rdw-emoji-wrapper,
+.draft-toolbar .rdw-image-wrapper,
+.draft-toolbar .rdw-remove-wrapper,
+.draft-toolbar .rdw-history-wrapper,
+.draft-toolbar .rdw-block-wrapper,
+.draft-toolbar .rdw-fontsize-wrapper,
+.draft-toolbar .rdw-fontfamily-wrapper {
+  display: flex !important;
+  align-items: center !important;
+  margin-bottom: 0 !important;
+}
+
+.draft-toolbar .rdw-option-wrapper {
+  border: none !important;
+  background-color: transparent !important;
+  padding: 5px !important;
+  min-width: 30px !important;
+  height: 30px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  border-radius: 3px !important;
+}
+
+.draft-toolbar .rdw-option-wrapper:hover {
+  background-color: #374151 !important;
+  box-shadow: none !important;
+}
+
+.draft-toolbar .rdw-option-active {
+  background-color: #4b5563 !important;
+}
+
+.draft-toolbar .rdw-option-wrapper img {
+  opacity: 0.8 !important;
+  filter: brightness(0) invert(1) !important;
+  width: 18px !important;
+  height: 18px !important;
+}
+
+.draft-toolbar .rdw-option-wrapper:hover img {
+  opacity: 1 !important;
+}
+
+.draft-toolbar .rdw-option-active img {
+  opacity: 1 !important;
+  filter: brightness(0) invert(1) !important;
+}
+
+.draft-toolbar .rdw-dropdown-wrapper {
+  background-color: transparent !important;
+  border: none !important;
+  height: 30px !important;
+  border-radius: 3px !important;
+  margin-right: 5px !important;
+}
+
+.draft-toolbar .rdw-dropdown-wrapper:hover {
+  background-color: #374151 !important;
+}
+
+.draft-toolbar .rdw-dropdown-selectedtext {
+  color: #9ca3af !important;
+  padding: 5px 8px !important;
+  font-size: 14px !important;
+  display: flex !important;
+  align-items: center !important;
+  height: 100% !important;
+}
+
+.draft-toolbar .rdw-dropdown-selectedtext:hover {
+  color: white !important;
+}
+
+.draft-toolbar .rdw-dropdown-carettoclose,
+.draft-toolbar .rdw-dropdown-carettoopen {
+  border-top-color: #9ca3af !important;
+}
+
+.draft-toolbar .rdw-dropdown-optionwrapper {
+  background-color: #1a1a1a !important;
+  border: 1px solid #374151 !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3) !important;
+  z-index: 100 !important;
+}
+
+.draft-toolbar .rdw-dropdown-optionwrapper .rdw-dropdownoption-default {
+  color: #9ca3af !important;
+  padding: 8px 12px !important;
+  font-size: 14px !important;
+}
+
+.draft-toolbar .rdw-dropdown-optionwrapper .rdw-dropdownoption-default:hover {
+  background-color: #2a2a2a !important;
+  color: white !important;
+}
+
+.draft-toolbar .rdw-dropdown-optionwrapper .rdw-dropdownoption-highlighted {
+  background-color: #374151 !important;
+  color: white !important;
+}
+
+.draft-editor {
+  background-color: #1a1a1a !important;
+  color: white !important;
+  padding: 1rem !important;
+  flex: 1 !important;
+  overflow-y: auto !important;
+  border-radius: 0 0 0.5rem 0.5rem !important;
+  min-height: 0 !important;
+  max-height: calc(300px - 60px) !important;
+}
+
+.draft-editor .public-DraftEditor-content {
+  color: white !important;
+  min-height: 150px !important;
+}
+
+.draft-editor .public-DraftStyleDefault-block {
+  color: white !important;
+}
+
+.draft-editor .public-DraftEditorPlaceholder-root {
+  color: #6b7280 !important;
+}

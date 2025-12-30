@@ -5,8 +5,7 @@ import "./globals.css";
 
 import { Hanken_Grotesk, Bricolage_Grotesque, Space_Grotesk  } from "next/font/google";
 import "./globals.css";
-import Navbar from "./component/Navbar";
-import Footer from "./component/Footer";
+import ConditionalLayout from "./component/ConditionalLayout";
 
 const hankenGrotesk = Hanken_Grotesk({
   subsets: ['latin'],
@@ -56,9 +55,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${hankenGrotesk.variable} ${spacegrotesk.variable} ${bricolage.variable}  antialiased`}
       >
-        <Navbar />
-        {children}
-        <Footer />
+        <ConditionalLayout>{children}</ConditionalLayout>
       </body>
     </html>
   );
