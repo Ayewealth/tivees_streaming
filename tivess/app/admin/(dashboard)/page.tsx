@@ -12,10 +12,24 @@ import { Loader2 } from 'lucide-react';
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL ?? 'https://tivess-be-89v3.onrender.com';
 
+interface PreviewMetric {
+  total: number;
+  change?: number;
+  changePositive?: boolean;
+  latest?: unknown[];
+  ongoing?: unknown[];
+}
+
 interface AdminHomePreview {
-  users: { total: number; latest: unknown[] };
-  movies: { total: number; latest: unknown[] };
-  watchParties: { total: number; ongoing: unknown[] };
+  users: PreviewMetric;
+  movies: PreviewMetric;
+  watchParties: PreviewMetric;
+}
+
+function formatChange(change: number | undefined): string {
+  if (change == null) return '—';
+  const prefix = change > 0 ? '+' : '';
+  return `${prefix}${change}%`;
 }
 
 interface AdminHomeResponse {
@@ -79,20 +93,20 @@ export default function AdminHomePage() {
               <MetricCard
                 label="Users"
                 value={String(preview.users.total)}
-                change="—"
-                changePositive={true}
+                change={formatChange(preview.users.change)}
+                changePositive={preview.users.changePositive ?? (preview.users.change != null && preview.users.change >= 0)}
               />
               <MetricCard
                 label="Movies"
                 value={String(preview.movies.total)}
-                change="—"
-                changePositive={true}
+                change={formatChange(preview.movies.change)}
+                changePositive={preview.movies.changePositive ?? (preview.movies.change != null && preview.movies.change >= 0)}
               />
               <MetricCard
                 label="Watch Parties"
                 value={String(preview.watchParties.total)}
-                change="—"
-                changePositive={true}
+                change={formatChange(preview.watchParties.change)}
+                changePositive={preview.watchParties.changePositive ?? (preview.watchParties.change != null && preview.watchParties.change >= 0)}
               />
             </>
           )}
