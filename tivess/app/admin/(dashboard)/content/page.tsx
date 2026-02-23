@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef, ChangeEvent } from "react";
+import { useState, useRef, ChangeEvent, useMemo } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Search,
   Filter,
@@ -13,6 +14,7 @@ import {
   List,
   Loader2,
   CloudUpload,
+  Film,
 } from "lucide-react";
 import QuillEditor from "./QuillEditor";
 import Image from "next/image";
@@ -21,120 +23,72 @@ import { useAuthToken } from "@/store/hooks";
 import { uploadVideoToCloudflareStream } from "@/lib/cloudflare-stream-upload";
 import { Progress } from "@/components/ui/progress";
 
-interface ContentItem {
-  id: number;
+interface ApiMovie {
+  _id: string;
+  uid?: string;
   title: string;
-  type: "Movie" | "Series";
-  views: string;
-  duration: string;
-  status: "Leading" | "Published" | "Draft";
-  thumbnail: string;
+  description?: string;
+  releaseDate?: string;
+  genre?: string;
+  duration: number;
+  status?: string;
+  createdAt?: string;
+  currentlyWatching?: string[];
+  watchedBy?: string[];
+  views?: number;
 }
 
-const contentData: ContentItem[] = [
-  {
-    id: 1,
-    title: "Inception",
-    type: "Movie",
-    views: "125.7K",
-    duration: "2h 31m",
-    status: "Leading",
-    thumbnail: "/assets/movie (1).png",
-  },
-  {
-    id: 2,
-    title: "Breaking Bad",
-    type: "Series",
-    views: "125.7K",
-    duration: "2h 31m",
-    status: "Published",
-    thumbnail: "/assets/movie (2).png",
-  },
-  {
-    id: 3,
-    title: "The Matrix",
-    type: "Series",
-    views: "125.7K",
-    duration: "2h 31m",
-    status: "Draft",
-    thumbnail: "/assets/movie (3).png",
-  },
-  {
-    id: 4,
-    title: "Planet Earth 3",
-    type: "Movie",
-    views: "125.7K",
-    duration: "2h 31m",
-    status: "Published",
-    thumbnail: "/assets/movie (4).png",
-  },
-  {
-    id: 5,
-    title: "Planet Earth",
-    type: "Series",
-    views: "125.7K",
-    duration: "2h 31m",
-    status: "Published",
-    thumbnail: "/assets/movie (1).png",
-  },
-  {
-    id: 6,
-    title: "The Dark Knight",
-    type: "Movie",
-    views: "125.7K",
-    duration: "2h 31m",
-    status: "Published",
-    thumbnail: "/assets/movie (2).png",
-  },
-  {
-    id: 7,
-    title: "Game of Thrones",
-    type: "Series",
-    views: "125.7K",
-    duration: "2h 31m",
-    status: "Published",
-    thumbnail: "/assets/movie (3).png",
-  },
-  {
-    id: 8,
-    title: "Interstellar",
-    type: "Movie",
-    views: "125.7K",
-    duration: "2h 31m",
-    status: "Draft",
-    thumbnail: "/assets/movie (4).png",
-  },
-  {
-    id: 9,
-    title: "Stranger Things",
-    type: "Series",
-    views: "125.7K",
-    duration: "2h 31m",
-    status: "Published",
-    thumbnail: "/assets/movie (1).png",
-  },
-  {
-    id: 10,
-    title: "The Crown",
-    type: "Series",
-    views: "125.7K",
-    duration: "2h 31m",
-    status: "Published",
-    thumbnail: "/assets/movie (2).png",
-  },
-];
+interface AdminHomePreview {
+  users: { total: number; latest?: unknown[] };
+  movies: { total: number; latest?: ApiMovie[] };
+  watchParties: { total: number; ongoing?: unknown[] };
+}
+
+async function fetchAdminHome(token: string | null): Promise<ApiMovie[]> {
+  if (!token) return [];
+  const API_BASE =
+    process.env.NEXT_PUBLIC_API_URL ?? "https://tivess-be-89v3.onrender.com";
+  const res = await fetch(`${API_BASE}/api/v1/admin/admin-home`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) return [];
+  const json = await res.json();
+  if (json.status !== "SUCCESS" || !json.preview?.movies?.latest) return [];
+  return json.preview.movies.latest;
+}
+
+function formatDuration(minutes: number): string {
+  if (!minutes || minutes < 0) return "—";
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  if (h > 0 && m > 0) return `${h}h ${m}m`;
+  if (h > 0) return `${h}h`;
+  return `${m}m`;
+}
+
+function formatViews(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}k`;
+  return String(n);
+}
+
+function mapDisplayStatus(status: string | undefined): string {
+  const s = (status ?? "").toLowerCase();
+  if (s === "inprogress") return "In progress";
+  if (s === "published") return "Published";
+  if (s === "draft") return "Draft";
+  return status ? status.charAt(0).toUpperCase() + status.slice(1) : "—";
+}
 
 const getStatusBadgeColor = (status: string) => {
-  switch (status) {
-    case "Published":
-      return "bg-green-500/20 text-green-400 border-green-500/30";
-    case "Draft":
-      return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
-    case "Leading":
-      return "bg-red-500/20 text-red-400 border-red-500/30";
-    default:
-      return "bg-gray-500/20 text-gray-400 border-gray-500/30";
-  }
+  const s = status.toLowerCase();
+  if (s === "published")
+    return "bg-green-500/20 text-green-400 border-green-500/30";
+  if (s === "draft")
+    return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
+  if (s === "leading" || s === "in progress")
+    return "bg-red-500/20 text-red-400 border-red-500/30";
+  return "bg-gray-500/20 text-gray-400 border-gray-500/30";
 };
 
 export default function ContentPage() {
@@ -168,6 +122,7 @@ export default function ContentPage() {
   const [isSaving, setIsSaving] = useState(false);
   const uploadAbortRef = useRef<{ abort: () => boolean } | null>(null);
   const token = useAuthToken();
+  const queryClient = useQueryClient();
 
   const API_BASE =
     process.env.NEXT_PUBLIC_API_URL ?? "https://tivess-be-89v3.onrender.com";
@@ -176,17 +131,21 @@ export default function ContentPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const totalPages = 50;
-  const totalContent = 500;
 
   const posterInputRef = useRef<HTMLInputElement>(null);
   // const backdropInputRef = useRef<HTMLInputElement>(null);
   const mainMovieInputRef = useRef<HTMLInputElement>(null);
   // const trailerInputRef = useRef<HTMLInputElement>(null);
 
-  const [failedThumbnails, setFailedThumbnails] = useState<Set<number>>(
+  const [failedThumbnails, setFailedThumbnails] = useState<Set<string>>(
     new Set(),
   );
+
+  const { data: movies = [], isLoading: isLoadingMovies } = useQuery({
+    queryKey: ["admin-home-movies", token],
+    queryFn: () => fetchAdminHome(token),
+    enabled: !!token && activeView === "movieList",
+  });
 
   // File upload handlers
   const handleFileSelect =
@@ -337,6 +296,7 @@ export default function ContentPage() {
       }
 
       toast.success("Content saved successfully.");
+      queryClient.invalidateQueries({ queryKey: ["admin-home-movies"] });
 
       setFormData({
         movieTitle: "",
@@ -362,19 +322,35 @@ export default function ContentPage() {
     }
   };
 
-  // Export functionality
+  // Filter content based on search
+  const filteredContent = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
+    if (!q) return movies;
+    return movies.filter(
+      (item) =>
+        item.title?.toLowerCase().includes(q) ||
+        item.genre?.toLowerCase().includes(q) ||
+        (item.status ?? "").toLowerCase().includes(q),
+    );
+  }, [movies, searchQuery]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredContent.length / rowsPerPage));
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const endIndex = startIndex + rowsPerPage;
+  const paginatedContent = filteredContent.slice(startIndex, endIndex);
+
   const handleExport = () => {
     const csvContent = [
       ["Title", "Type", "Views", "Duration", "Status"],
-      ...contentData.map((item) => [
-        item.title,
-        item.type,
-        item.views,
-        item.duration,
-        item.status,
+      ...filteredContent.map((item) => [
+        item.title ?? "",
+        "Movie",
+        formatViews(item.views ?? item.watchedBy?.length ?? 0),
+        formatDuration(item.duration ?? 0),
+        mapDisplayStatus(item.status),
       ]),
     ]
-      .map((row) => row.join(","))
+      .map((row) => row.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(","))
       .join("\n");
 
     const blob = new Blob([csvContent], { type: "text/csv" });
@@ -384,19 +360,8 @@ export default function ContentPage() {
     a.download = "content-export.csv";
     a.click();
     URL.revokeObjectURL(url);
+    toast.success("Export downloaded.");
   };
-
-  // Filter content based on search
-  const filteredContent = contentData.filter(
-    (item) =>
-      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.status.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
-
-  const startIndex = (currentPage - 1) * rowsPerPage;
-  const endIndex = startIndex + rowsPerPage;
-  const paginatedContent = filteredContent.slice(startIndex, endIndex);
 
   return (
     <div className="p-4 sm:p-5 md:p-6 lg:p-8 bg-black min-h-screen pt-16 lg:pt-8 w-full overflow-x-hidden">
@@ -869,187 +834,161 @@ export default function ContentPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredContent.map((item) => (
-                      <tr
-                        key={item.id}
-                        className="border-b border-gray-800 hover:bg-[#242424] transition-colors"
-                      >
-                        <td className="px-4 sm:px-6 py-4">
-                          <div className="flex items-center gap-3">
-                            <Image
-                              src={
-                                failedThumbnails.has(item.id)
-                                  ? "/assets/movieBanner.png"
-                                  : item.thumbnail
-                              }
-                              alt={item.title}
-                              width={48}
-                              height={64}
-                              className="w-12 h-16 object-cover rounded flex-shrink-0"
-                              onError={() =>
-                                setFailedThumbnails((prev) =>
-                                  new Set(prev).add(item.id),
-                                )
-                              }
-                            />
-                            <div>
-                              <p className="text-white font-medium text-sm">
-                                {item.title}
-                              </p>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-4 sm:px-6 py-4 text-gray-300 text-sm">
-                          {item.type}
-                        </td>
-                        <td className="px-4 sm:px-6 py-4 text-gray-300 text-sm">
-                          {item.views}
-                        </td>
-                        <td className="px-4 sm:px-6 py-4 text-gray-300 text-sm">
-                          {item.duration}
-                        </td>
-                        <td className="px-4 sm:px-6 py-4">
-                          <span
-                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${getStatusBadgeColor(
-                              item.status,
-                            )}`}
-                          >
-                            {item.status}
-                          </span>
-                        </td>
-                        <td className="px-4 sm:px-6 py-4">
-                          <div className="flex items-center justify-end gap-2">
-                            <button
-                              onClick={() =>
-                                console.log("Edit content:", item.id)
-                              }
-                              className="p-2 hover:bg-gray-800 rounded transition-colors"
-                              aria-label="Edit"
-                            >
-                              <Pencil size={16} className="text-gray-400" />
-                            </button>
-                            <button
-                              onClick={() => {
-                                if (
-                                  confirm(
-                                    `Are you sure you want to delete "${item.title}"? This action cannot be undone.`,
-                                  )
-                                ) {
-                                  console.log("Delete content:", item.id);
-                                }
-                              }}
-                              className="p-2 hover:bg-gray-800 rounded transition-colors"
-                              aria-label="Delete"
-                            >
-                              <Trash2 size={16} className="text-gray-400" />
-                            </button>
-                            <button
-                              onClick={() =>
-                                console.log(
-                                  "More options for content:",
-                                  item.id,
-                                )
-                              }
-                              className="p-2 hover:bg-gray-800 rounded transition-colors"
-                              aria-label="More options"
-                            >
-                              <MoreVertical
-                                size={16}
-                                className="text-gray-400"
-                              />
-                            </button>
-                          </div>
+                    {isLoadingMovies ? (
+                      <tr>
+                        <td colSpan={6} className="px-4 sm:px-6 py-12 text-center text-gray-400">
+                          <Loader2 className="mx-auto size-8 animate-spin" />
                         </td>
                       </tr>
-                    ))}
+                    ) : paginatedContent.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="px-4 sm:px-6 py-12 text-center text-gray-400">
+                          No movies found.
+                        </td>
+                      </tr>
+                    ) : (
+                      paginatedContent.map((item) => (
+                        <tr
+                          key={item._id}
+                          className="border-b border-gray-800 hover:bg-[#242424] transition-colors"
+                        >
+                          <td className="px-4 sm:px-6 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className="relative w-12 h-16 rounded overflow-hidden flex-shrink-0 bg-gray-800 flex items-center justify-center">
+                                <Film size={24} className="text-gray-600" aria-hidden />
+                              </div>
+                              <div>
+                                <p className="text-white font-medium text-sm">
+                                  {item.title || "—"}
+                                </p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-4 sm:px-6 py-4 text-gray-300 text-sm">
+                            Movie
+                          </td>
+                          <td className="px-4 sm:px-6 py-4 text-gray-300 text-sm">
+                            {formatViews(item.views ?? item.watchedBy?.length ?? 0)}
+                          </td>
+                          <td className="px-4 sm:px-6 py-4 text-gray-300 text-sm">
+                            {formatDuration(item.duration ?? 0)}
+                          </td>
+                          <td className="px-4 sm:px-6 py-4">
+                            <span
+                              className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${getStatusBadgeColor(
+                                mapDisplayStatus(item.status),
+                              )}`}
+                            >
+                              {mapDisplayStatus(item.status)}
+                            </span>
+                          </td>
+                          <td className="px-4 sm:px-6 py-4">
+                            <div className="flex items-center justify-end gap-2">
+                              <button
+                                onClick={() => toast.info("Edit coming soon.")}
+                                className="p-2 hover:bg-gray-800 rounded transition-colors"
+                                aria-label="Edit"
+                              >
+                                <Pencil size={16} className="text-gray-400" />
+                              </button>
+                              <button
+                                onClick={() => toast.info("Delete coming soon.")}
+                                className="p-2 hover:bg-gray-800 rounded transition-colors"
+                                aria-label="Delete"
+                              >
+                                <Trash2 size={16} className="text-gray-400" />
+                              </button>
+                              <button
+                                onClick={() => toast.info("More options coming soon.")}
+                                className="p-2 hover:bg-gray-800 rounded transition-colors"
+                                aria-label="More options"
+                              >
+                                <MoreVertical size={16} className="text-gray-400" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
 
               {/* Mobile View */}
               <div className="md:hidden">
-                {paginatedContent.map((item) => (
-                  <div key={item.id} className="p-4 border-b border-gray-800">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <Image
-                          src={
-                            failedThumbnails.has(item.id)
-                              ? "/assets/movieBanner.png"
-                              : item.thumbnail
-                          }
-                          alt={item.title}
-                          width={48}
-                          height={64}
-                          className="w-12 h-16 object-cover rounded flex-shrink-0"
-                          onError={() =>
-                            setFailedThumbnails((prev) =>
-                              new Set(prev).add(item.id),
-                            )
-                          }
-                        />
-                        <div className="min-w-0 flex-1">
-                          <p className="text-white font-medium text-sm truncate">
-                            {item.title}
-                          </p>
-                          <p className="text-gray-400 text-xs mt-1">
-                            {item.type}
-                          </p>
+                {isLoadingMovies ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="size-8 animate-spin text-gray-500" />
+                  </div>
+                ) : paginatedContent.length === 0 ? (
+                  <div className="p-8 text-center text-gray-400">
+                    No movies found.
+                  </div>
+                ) : (
+                  paginatedContent.map((item) => (
+                    <div key={item._id} className="p-4 border-b border-gray-800">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <div className="relative w-12 h-16 rounded overflow-hidden flex-shrink-0 bg-gray-800 flex items-center justify-center">
+                            <Film size={24} className="text-gray-600" aria-hidden />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-white font-medium text-sm truncate">
+                              {item.title || "—"}
+                            </p>
+                            <p className="text-gray-400 text-xs mt-1">
+                              Movie
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          <button
+                            onClick={() => toast.info("Edit coming soon.")}
+                            className="p-2 hover:bg-gray-800 rounded transition-colors"
+                          >
+                            <Pencil size={16} className="text-gray-400" />
+                          </button>
+                          <button
+                            onClick={() => toast.info("Delete coming soon.")}
+                            className="p-2 hover:bg-gray-800 rounded transition-colors"
+                          >
+                            <Trash2 size={16} className="text-gray-400" />
+                          </button>
+                          <button
+                            onClick={() => toast.info("More options coming soon.")}
+                            className="p-2 hover:bg-gray-800 rounded transition-colors"
+                          >
+                            <MoreVertical size={16} className="text-gray-400" />
+                          </button>
                         </div>
                       </div>
-                      <div className="flex items-center gap-1 flex-shrink-0">
-                        <button
-                          onClick={() => console.log("Edit content:", item.id)}
-                          className="p-2 hover:bg-gray-800 rounded transition-colors"
-                        >
-                          <Pencil size={16} className="text-gray-400" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            if (
-                              confirm(
-                                `Are you sure you want to delete "${item.title}"? This action cannot be undone.`,
-                              )
-                            ) {
-                              console.log("Delete content:", item.id);
-                            }
-                          }}
-                          className="p-2 hover:bg-gray-800 rounded transition-colors"
-                        >
-                          <Trash2 size={16} className="text-gray-400" />
-                        </button>
-                        <button
-                          onClick={() =>
-                            console.log("More options for content:", item.id)
-                          }
-                          className="p-2 hover:bg-gray-800 rounded transition-colors"
-                        >
-                          <MoreVertical size={16} className="text-gray-400" />
-                        </button>
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                          <p className="text-gray-400 text-xs mb-1">Views</p>
+                          <p className="text-gray-300">
+                            {formatViews(item.views ?? item.watchedBy?.length ?? 0)}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-gray-400 text-xs mb-1">Duration</p>
+                          <p className="text-gray-300">
+                            {formatDuration(item.duration ?? 0)}
+                          </p>
+                        </div>
+                        <div className="col-span-2">
+                          <p className="text-gray-400 text-xs mb-1">Status</p>
+                          <span
+                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${getStatusBadgeColor(
+                              mapDisplayStatus(item.status),
+                            )}`}
+                          >
+                            {mapDisplayStatus(item.status)}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-3 text-sm">
-                      <div>
-                        <p className="text-gray-400 text-xs mb-1">Views</p>
-                        <p className="text-gray-300">{item.views}</p>
-                      </div>
-                      <div>
-                        <p className="text-gray-400 text-xs mb-1">Duration</p>
-                        <p className="text-gray-300">{item.duration}</p>
-                      </div>
-                      <div className="col-span-2">
-                        <p className="text-gray-400 text-xs mb-1">Status</p>
-                        <span
-                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${getStatusBadgeColor(
-                            item.status,
-                          )}`}
-                        >
-                          {item.status}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
 
@@ -1064,7 +1003,10 @@ export default function ContentPage() {
                   </label>
                   <select
                     value={rowsPerPage}
-                    onChange={(e) => setRowsPerPage(Number(e.target.value))}
+                    onChange={(e) => {
+                      setRowsPerPage(Number(e.target.value));
+                      setCurrentPage(1);
+                    }}
                     className="bg-[#1a1a1a] border border-gray-800 text-white px-3 py-1.5 rounded text-sm focus:outline-none focus:border-gray-700"
                   >
                     <option value={10}>10</option>
