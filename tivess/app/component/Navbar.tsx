@@ -68,7 +68,7 @@ const Navbar = () => {
                 Support
               </Link>
               <Link 
-                href='/subscriptions' 
+                href='/subscription' 
                 className="text-white hover:text-gray-300 transition-colors duration-200 text-sm font-medium"
               >
                 Subscriptions
@@ -187,7 +187,7 @@ const Navbar = () => {
               Support
             </Link>
             <Link 
-              href='/subscriptions' 
+              href='/subscription' 
               onClick={handleLinkClick}
               className="block w-full text-left text-white hover:bg-white/10 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200"
             >

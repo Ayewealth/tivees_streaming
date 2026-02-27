@@ -1,7 +1,8 @@
 
 
 import React from 'react'
-import { FaPlay } from 'react-icons/fa';
+import { FaCopy, FaPlay } from 'react-icons/fa';
+import { FaLink } from 'react-icons/fa6';
 import { LuTvMinimal } from 'react-icons/lu';
 
 interface BtnProps {
@@ -30,6 +31,20 @@ export const SolidWatchBtn = ({ title, onClick, ...props }: BtnProps) => {
         className="w-full bg-white flex items-center gap-2 cursor-pointer text-neutral-900 px-4 py-3 rounded-md text-base font-medium transition-colors duration-200"
     >
         <LuTvMinimal className='text-lg'/>
+        {title}
+    </button>
+  )
+}
+
+
+export const SolidCopyBtn = ({ title, onClick, ...props }: BtnProps) => {
+  return (
+    <button 
+        {...props}
+        onClick={onClick} 
+        className="w-full bg-white flex justify-center m-auto items-center gap-2 cursor-pointer text-neutral-900 px-4 py-3 rounded-md text-base font-medium transition-colors duration-200"
+    >
+        <FaLink className='text-lg'/>
         {title}
     </button>
   )
