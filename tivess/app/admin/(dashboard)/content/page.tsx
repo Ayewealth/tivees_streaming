@@ -31,6 +31,7 @@ interface ApiMovie {
   releaseDate?: string;
   genre?: string;
   duration: number;
+  posterUrl?: string;
   status?: string;
   createdAt?: string;
   currentlyWatching?: string[];
@@ -244,6 +245,7 @@ export default function ContentPage() {
       posterFormData.append("uid", posterUid);
       posterFormData.append("file", posterFile);
 
+      console.log("Poster Upload UID", posterUid)
       const posterRes = await fetch(
         `${API_BASE}/api/v1/admin/admin-uploadPoster`,
         {
@@ -263,6 +265,7 @@ export default function ContentPage() {
         return;
       }
 
+      console.log("Video Upload UID", posterUid);
       const videoRes = await fetch(
         `${API_BASE}/api/v1/admin/admin-uploadvideo`,
         {
@@ -280,6 +283,7 @@ export default function ContentPage() {
             year: formData.year.trim(),
             minutes: formData.runtime.trim(),
             rating: formData.rating.trim(),
+            poster: `https://assets.tivees.com/${posterUid}.webp`,
             status: "ready",
           }),
         },
@@ -334,23 +338,29 @@ export default function ContentPage() {
     );
   }, [movies, searchQuery]);
 
-  const totalPages = Math.max(1, Math.ceil(filteredContent.length / rowsPerPage));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredContent.length / rowsPerPage),
+  );
   const startIndex = (currentPage - 1) * rowsPerPage;
   const endIndex = startIndex + rowsPerPage;
   const paginatedContent = filteredContent.slice(startIndex, endIndex);
 
   const handleExport = () => {
     const csvContent = [
-      ["Title", "Type", "Views", "Duration", "Status"],
+      ["Title", "Genre", "Release", "Views", "Duration", "Status"],
       ...filteredContent.map((item) => [
         item.title ?? "",
-        "Movie",
+        item.genre ?? "",
+        item.releaseDate ?? "",
         formatViews(item.views ?? item.watchedBy?.length ?? 0),
         formatDuration(item.duration ?? 0),
         mapDisplayStatus(item.status),
       ]),
     ]
-      .map((row) => row.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(","))
+      .map((row) =>
+        row.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(","),
+      )
       .join("\n");
 
     const blob = new Blob([csvContent], { type: "text/csv" });
@@ -817,7 +827,10 @@ export default function ContentPage() {
                         TITLE
                       </th>
                       <th className="text-left px-4 sm:px-6 py-4 text-gray-400 text-xs sm:text-sm font-medium">
-                        TYPE
+                        GENRE
+                      </th>
+                      <th className="text-left px-4 sm:px-6 py-4 text-gray-400 text-xs sm:text-sm font-medium">
+                        RELEASE
                       </th>
                       <th className="text-left px-4 sm:px-6 py-4 text-gray-400 text-xs sm:text-sm font-medium">
                         VIEWS
@@ -836,13 +849,19 @@ export default function ContentPage() {
                   <tbody>
                     {isLoadingMovies ? (
                       <tr>
-                        <td colSpan={6} className="px-4 sm:px-6 py-12 text-center text-gray-400">
+                        <td
+                          colSpan={8}
+                          className="px-4 sm:px-6 py-12 text-center text-gray-400"
+                        >
                           <Loader2 className="mx-auto size-8 animate-spin" />
                         </td>
                       </tr>
                     ) : paginatedContent.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="px-4 sm:px-6 py-12 text-center text-gray-400">
+                        <td
+                          colSpan={8}
+                          className="px-4 sm:px-6 py-12 text-center text-gray-400"
+                        >
                           No movies found.
                         </td>
                       </tr>
@@ -855,7 +874,27 @@ export default function ContentPage() {
                           <td className="px-4 sm:px-6 py-4">
                             <div className="flex items-center gap-3">
                               <div className="relative w-12 h-16 rounded overflow-hidden flex-shrink-0 bg-gray-800 flex items-center justify-center">
-                                <Film size={24} className="text-gray-600" aria-hidden />
+                                {item.posterUrl &&
+                                !failedThumbnails.has(item.posterUrl) ? (
+                                  <Image
+                                    src={item.posterUrl}
+                                    alt={item.title}
+                                    fill
+                                    className="object-cover"
+                                    unoptimized
+                                    onError={() =>
+                                      setFailedThumbnails((prev) =>
+                                        new Set(prev).add(item.posterUrl!),
+                                      )
+                                    }
+                                  />
+                                ) : (
+                                  <Film
+                                    size={24}
+                                    className="text-gray-600"
+                                    aria-hidden
+                                  />
+                                )}
                               </div>
                               <div>
                                 <p className="text-white font-medium text-sm">
@@ -865,10 +904,15 @@ export default function ContentPage() {
                             </div>
                           </td>
                           <td className="px-4 sm:px-6 py-4 text-gray-300 text-sm">
-                            Movie
+                            {item.genre || "—"}
                           </td>
                           <td className="px-4 sm:px-6 py-4 text-gray-300 text-sm">
-                            {formatViews(item.views ?? item.watchedBy?.length ?? 0)}
+                            {item.releaseDate || "—"}
+                          </td>
+                          <td className="px-4 sm:px-6 py-4 text-gray-300 text-sm">
+                            {formatViews(
+                              item.views ?? item.watchedBy?.length ?? 0,
+                            )}
                           </td>
                           <td className="px-4 sm:px-6 py-4 text-gray-300 text-sm">
                             {formatDuration(item.duration ?? 0)}
@@ -892,18 +936,25 @@ export default function ContentPage() {
                                 <Pencil size={16} className="text-gray-400" />
                               </button>
                               <button
-                                onClick={() => toast.info("Delete coming soon.")}
+                                onClick={() =>
+                                  toast.info("Delete coming soon.")
+                                }
                                 className="p-2 hover:bg-gray-800 rounded transition-colors"
                                 aria-label="Delete"
                               >
                                 <Trash2 size={16} className="text-gray-400" />
                               </button>
                               <button
-                                onClick={() => toast.info("More options coming soon.")}
+                                onClick={() =>
+                                  toast.info("More options coming soon.")
+                                }
                                 className="p-2 hover:bg-gray-800 rounded transition-colors"
                                 aria-label="More options"
                               >
-                                <MoreVertical size={16} className="text-gray-400" />
+                                <MoreVertical
+                                  size={16}
+                                  className="text-gray-400"
+                                />
                               </button>
                             </div>
                           </td>
@@ -926,18 +977,42 @@ export default function ContentPage() {
                   </div>
                 ) : (
                   paginatedContent.map((item) => (
-                    <div key={item._id} className="p-4 border-b border-gray-800">
+                    <div
+                      key={item._id}
+                      className="p-4 border-b border-gray-800"
+                    >
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-3 flex-1 min-w-0">
                           <div className="relative w-12 h-16 rounded overflow-hidden flex-shrink-0 bg-gray-800 flex items-center justify-center">
-                            <Film size={24} className="text-gray-600" aria-hidden />
+                            {item.posterUrl &&
+                            !failedThumbnails.has(item.posterUrl) ? (
+                              <Image
+                                src={item.posterUrl}
+                                alt={item.title}
+                                fill
+                                className="object-cover"
+                                unoptimized
+                                onError={() =>
+                                  setFailedThumbnails((prev) =>
+                                    new Set(prev).add(item.posterUrl!),
+                                  )
+                                }
+                              />
+                            ) : (
+                              <Film
+                                size={24}
+                                className="text-gray-600"
+                                aria-hidden
+                              />
+                            )}
                           </div>
                           <div className="min-w-0 flex-1">
                             <p className="text-white font-medium text-sm truncate">
                               {item.title || "—"}
                             </p>
                             <p className="text-gray-400 text-xs mt-1">
-                              Movie
+                              {item.genre || "—"}{" "}
+                              {item.releaseDate ? `· ${item.releaseDate}` : ""}
                             </p>
                           </div>
                         </div>
@@ -955,7 +1030,9 @@ export default function ContentPage() {
                             <Trash2 size={16} className="text-gray-400" />
                           </button>
                           <button
-                            onClick={() => toast.info("More options coming soon.")}
+                            onClick={() =>
+                              toast.info("More options coming soon.")
+                            }
                             className="p-2 hover:bg-gray-800 rounded transition-colors"
                           >
                             <MoreVertical size={16} className="text-gray-400" />
@@ -964,9 +1041,21 @@ export default function ContentPage() {
                       </div>
                       <div className="grid grid-cols-2 gap-3 text-sm">
                         <div>
+                          <p className="text-gray-400 text-xs mb-1">Genre</p>
+                          <p className="text-gray-300">{item.genre || "—"}</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-400 text-xs mb-1">Release</p>
+                          <p className="text-gray-300">
+                            {item.releaseDate || "—"}
+                          </p>
+                        </div>
+                        <div>
                           <p className="text-gray-400 text-xs mb-1">Views</p>
                           <p className="text-gray-300">
-                            {formatViews(item.views ?? item.watchedBy?.length ?? 0)}
+                            {formatViews(
+                              item.views ?? item.watchedBy?.length ?? 0,
+                            )}
                           </p>
                         </div>
                         <div>
